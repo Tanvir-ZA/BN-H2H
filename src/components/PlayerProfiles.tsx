@@ -213,34 +213,7 @@ export default function PlayerProfiles({ players }: { players: Player[] }) {
 
   return (
     <section className="space-y-6">
-      <div className="relative overflow-hidden rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/15 via-[#101b20] to-cyan-500/10 p-5 sm:p-8">
-        <div className="pointer-events-none absolute -right-12 -top-16 h-48 w-48 rounded-full bg-emerald-400/10 blur-3xl" />
-        <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-emerald-200">
-              <CircleUserRound size={14} /> Player directory
-            </div>
-            <h2 className="text-3xl font-black tracking-tight text-white sm:text-4xl">
-              Players <span className="text-emerald-300">Hub</span>
-            </h2>
-            <p className="mt-2 max-w-lg text-sm leading-6 text-slate-400">
-              Explore every rival, check career stats and relive approved matches.
-            </p>
-          </div>
-          <button
-            onClick={() => void loadMatches()}
-            className="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 sm:self-auto"
-          >
-            <ChartNoAxesColumnIncreasing size={16} /> Refresh stats
-          </button>
-        </div>
-
-        <div className="relative mt-6 grid grid-cols-3 gap-3">
-          <SummaryStat label="Players" value={players.length} color="text-cyan-300" />
-          <SummaryStat label="Matches" value={totalMatches} color="text-amber-300" />
-          <SummaryStat label="Total wins" value={totalWins} color="text-emerald-300" />
-        </div>
-      </div>
+     
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
