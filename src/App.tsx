@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { supabase } from './lib/supabase'
@@ -100,25 +101,32 @@ export default function App() {
     let mounted = true
 
     async function initialize() {
-      const { data, error } = await supabase.auth.getSession()
+      try {
+        const { data, error } = await supabase.auth.getSession()
 
-      if (error) console.error('Session check failed:', error.message)
-      if (!mounted) return
+        if (error) {
+          console.error('Session check failed:', error.message)
+        }
 
-      if (data.session?.user) {
-        const admin = await checkAdmin(data.session.user.id)
         if (!mounted) return
 
-        if (!admin) {
-          await supabase.auth.signOut()
+        if (data.session?.user) {
+          const admin = await checkAdmin(data.session.user.id)
+
+          if (!mounted) return
+
+          if (!admin) {
+            await supabase.auth.signOut()
+            setIsAdmin(false)
+          }
+        } else {
           setIsAdmin(false)
         }
-      } else {
-        setIsAdmin(false)
-      }
 
-      await loadPlayers()
-      if (mounted) setSessionChecked(true)
+        await loadPlayers()
+      } finally {
+        if (mounted) setSessionChecked(true)
+      }
     }
 
     void initialize()
@@ -134,7 +142,9 @@ export default function App() {
       }
 
       setTimeout(() => {
-        if (mounted) void checkAdmin(session.user.id)
+        if (mounted) {
+          void checkAdmin(session.user.id)
+        }
       }, 0)
     })
 
@@ -150,10 +160,10 @@ export default function App() {
   }
 
   async function handleLoginSuccess() {
-    const { data } = await supabase.auth.getSession()
+    const { data, error } = await supabase.auth.getSession()
     const user = data.session?.user
 
-    if (!user) {
+    if (error || !user) {
       showStatus('Login succeeded, but no active session was found.', 'error')
       return
     }
@@ -161,10 +171,13 @@ export default function App() {
     const admin = await checkAdmin(user.id)
 
     if (admin) {
-      navigateTo('admin')
+      setTabHistory([])
+      setActiveTab('admin')
+      setMenuOpen(false)
       showStatus('Welcome back, admin!')
     } else {
       await supabase.auth.signOut()
+      setIsAdmin(false)
       showStatus('This account does not have admin access.', 'error')
     }
   }
@@ -180,6 +193,7 @@ export default function App() {
     setIsAdmin(false)
     setTabHistory([])
     setActiveTab('home')
+    setMenuOpen(false)
     showStatus('Logged out successfully.')
   }
 
@@ -337,13 +351,25 @@ export default function App() {
               <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
                 Menu
               </div>
+
               {isAdmin ? (
-                <button
-                  onClick={() => void handleLogout()}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-rose-200 transition hover:bg-rose-300/10"
-                >
-                  <LogOut size={17} /> Log out
-                </button>
+                <>
+                  <button
+                    onClick={() => navigateTo('admin')}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-white transition hover:bg-gradient-to-r hover:from-fuchsia-400/15 hover:to-violet-400/15"
+                  >
+                    <ShieldCheck size={17} className="text-fuchsia-200" />
+                    Admin Control
+                    <ArrowRight size={15} className="ml-auto text-slate-500" />
+                  </button>
+
+                  <button
+                    onClick={() => void handleLogout()}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-rose-200 transition hover:bg-rose-300/10"
+                  >
+                    <LogOut size={17} /> Log out
+                  </button>
+                </>
               ) : (
                 <button
                   onClick={() => navigateTo('admin')}
